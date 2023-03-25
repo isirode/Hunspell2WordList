@@ -98,7 +98,8 @@ public class WordListCLI {
         
         // Start the process --
         try {
-            WordListGenerator generator = new WordListGenerator();
+            // FIXME : predicate is bad
+            WordListGenerator generator = new WordListGenerator(x -> true, x -> true);
             
             generator.setFileName(input);
             generator.addListener(listener);

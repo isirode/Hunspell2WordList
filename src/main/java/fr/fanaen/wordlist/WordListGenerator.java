@@ -28,6 +28,8 @@ import fr.fanaen.wordlist.exception.NoListenerSetException;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
+
 import fr.fanaen.wordlist.model.ReferenceStorage;
 import fr.fanaen.wordlist.model.Word;
 import fr.fanaen.wordlist.parser.AffParser;
@@ -51,20 +53,25 @@ public class WordListGenerator implements WordListGeneratorListener {
     protected long wordCount = 0;
     private boolean statisticsDisplay = false;
 
+    Predicate<String> wordFilter;
+    Predicate<String> affixFilter;
+
     // -- Constructors --
     
-    public WordListGenerator() {
+    public WordListGenerator(Predicate<String> wordFilter, Predicate<String> affixFilter) {
         this.fileName = "";
         this.listenerList = new LinkedList<>();
+        this.wordFilter = wordFilter;
+        this.affixFilter = affixFilter;
     }
     
-    public WordListGenerator(String fileName) {
-        this();
+    public WordListGenerator(String fileName, Predicate<String> wordFilter, Predicate<String> affixFilter) {
+        this(wordFilter, affixFilter);
         this.fileName = fileName;
     }
     
-    public WordListGenerator(String fileName, WordListGeneratorListener listener) throws Exception {
-        this(fileName);
+    public WordListGenerator(String fileName, WordListGeneratorListener listener, Predicate<String> wordFilter, Predicate<String> affixFilter) throws Exception {
+        this(fileName, wordFilter, affixFilter);
         addListener(listener);
     }
     
@@ -88,8 +95,8 @@ public class WordListGenerator implements WordListGeneratorListener {
             throw new NoFileSetException();
         
         // Initialisation --
-        affParser = new AffParser();
-        dicParser = new DicParser(this);
+        affParser = new AffParser(this.affixFilter);
+        dicParser = new DicParser(this, wordFilter);
         
         // Process the reference file --
         affParser.processFile(fileName + ".aff");

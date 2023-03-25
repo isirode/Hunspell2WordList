@@ -25,6 +25,8 @@ package fr.fanaen.wordlist.parser;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
+
 import fr.fanaen.wordlist.model.Affix;
 import fr.fanaen.wordlist.model.AffixOption;
 import fr.fanaen.wordlist.model.ReferenceStorage;
@@ -37,12 +39,14 @@ public class AffParser extends Parser {
         
     // -- Attributes --
     protected Set<String> flagSet;
+    protected Predicate<String> affixFilter;
     
     // -- Constructors --
     
-    public AffParser() {
+    public AffParser(Predicate<String> affixFilter) {
         storage = new ReferenceStorage();
         flagSet = new HashSet<>();
+        this.affixFilter = affixFilter;
     }
     
     // -- Methods --
@@ -114,11 +118,19 @@ public class AffParser extends Parser {
             int nbItems = Integer.parseInt(seg[3]);
             boolean prefix = seg[0].equals("PFX");
 
+            if (this.affixFilter.test(id)) return;
+
             storage.initAffix(id, nbItems, prefix);
         } 
         // New affixe --
         else {
             Affix affix = storage.getAffix(seg[1]);
+
+            if (affix == null) {
+                // FIXME : affixes removed & I am not sure why I had put this line and comment
+                // I guess it is null sometimes, and would throw a null exception otherwise
+                return;
+            }
 
             String stripping = seg[2];
             String affixStr = seg[3];

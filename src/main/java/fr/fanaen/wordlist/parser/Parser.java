@@ -56,6 +56,7 @@ public abstract class Parser {
         Charset charset = Charset.forName("UTF-8");
         
         // Read the file --
+        // TODO : ensure we can read a resource here
         try(BufferedReader br = Files.newBufferedReader(file.toPath(), charset)) {
             int i = 0;
 

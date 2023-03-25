@@ -1,5 +1,6 @@
 data/
 lib/
+target/
 
 # Netbeans files
 nbproject/

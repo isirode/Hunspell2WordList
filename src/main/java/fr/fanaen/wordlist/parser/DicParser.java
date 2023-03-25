@@ -24,6 +24,7 @@
 package fr.fanaen.wordlist.parser;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import fr.fanaen.wordlist.WordListGeneratorListener;
@@ -40,16 +41,18 @@ public class DicParser extends Parser {
     protected Matcher m;
     protected long lineCount = 0;
     protected WordListGeneratorListener listener;
+    protected Predicate<String> wordFilter;
     
     // -- Constructors --
     
-    public DicParser(WordListGeneratorListener parent) {
+    public DicParser(WordListGeneratorListener parent, Predicate<String> wordFilter) {
         // Example: ADN/L'D'Q' po:nom is:mas is:inv
         // Group 1, the base: ADN
         // Group 2, affixes: L'D'Q'
         // Group 3, tags: po:nom is:mas is:inv
         p = Pattern.compile("^([^/\\t ]+)/?(\\S*)\\t?(.*)?$");
         listener = parent;
+        this.wordFilter = wordFilter;
     }
     
     // -- Methods --
@@ -66,6 +69,11 @@ public class DicParser extends Parser {
         if(m.matches()) {
             String content = m.group(1);
             String affixes = m.group(2);
+
+            if (wordFilter.test(content)) {
+                return;
+            }
+
             Word word = new Word(content, affixes);
 
             // Check if the identifier col is present --
